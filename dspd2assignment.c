@@ -3,11 +3,12 @@
 // #include <stddef.h>
 
 #define SIZE 5
+#define NAME_SIZE 20
 
 typedef struct mem
 {
     int mem_id;
-    char *Name;
+    char Name[NAME_SIZE];
     int age;
     int ind_goal;
     int *stepcount;
@@ -18,7 +19,7 @@ typedef struct mem
 typedef struct gr
 {
     int gr_id;
-    char *gr_name;
+    char gr_name[NAME_SIZE];
     individual *arr_mem[SIZE];
     int gr_goal;
     group *next;
@@ -27,11 +28,13 @@ typedef struct gr
 individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, individual *head)
 {
     individual *nptr;
-    nptr->mem_id = id;
-    nptr->Name = name;
-    nptr->age = age;
-    nptr->ind_goal = goal;
-    nptr->stepcount = weeksteps;
+    scanf("%d",nptr->mem_id);
+    fflush(stdin);
+    scanf("%f",nptr->Name);
+    scanf("%d",nptr->age);
+    scanf("%d",nptr->ind_goal);
+    scanf("%d",nptr->stepcount);
+    
 
     individual *curr, *prev;
     curr = head;
@@ -128,6 +131,7 @@ void Check_individual_rewards(int id, individual *leaderboard)
             flag = 1;
             break;
         }
+        curr=curr->next;
     }
     if (flag == 0)
     {
@@ -154,3 +158,29 @@ void Check_individual_rewards(int id, individual *leaderboard)
         }
     }
 }
+
+
+void Suggest_goal_update(individual* leaderboard)
+{
+    individual* curr=leaderboard;
+    int pos=1;
+    int suggest=0;
+    while(pos<3 && curr!=NULL)
+    {
+        curr=curr->next;
+    }
+    if (pos<=3 && curr!=NULL)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            suggest+=curr->stepcount[i];
+        }
+        printf("To be in top 3 of the leaderboard, one should have a goal of  %d stepcount or more per week ",suggest);
+    }
+    else
+    {
+        printf("Leaderboard not available now \n One can set their goal on their own at their pace");
+    }
+    
+}
+

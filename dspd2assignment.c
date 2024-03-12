@@ -52,3 +52,39 @@ individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, in
     return head;
 }
 
+group* Delete_group(int id, group* gptr)
+{
+    group *ptr, *prev;
+    ptr = gptr;
+    prev = NULL;
+    while (ptr != NULL && ptr->gr_id !=id)
+    {
+        prev = ptr;
+        ptr = ptr->next;   
+    }
+    if(ptr != NULL)
+    {
+        if (prev == NULL)
+        {
+            gptr = ptr->next;
+        }
+        else
+        {
+            prev->next = ptr->next;
+        }
+        free(ptr);
+    }
+    else
+    {
+        printf("group does not exist");
+    }
+    return gptr;
+}
+
+group* Merge_groups(group* id1, group* id2, group* gptr)
+{
+    group *ptr, *prev;
+    ptr = gptr;
+    prev = NULL;
+    gptr = Create_group();
+}

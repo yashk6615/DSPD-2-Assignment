@@ -72,7 +72,7 @@ individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, in
     return head;
 }
 
-// Implement the function to create a new group
+
 group *createGroup(int groupID, char *groupName, int weeklyGroupGoal)
 {
     group *newGroup = (group *)malloc(sizeof(group));
@@ -198,7 +198,7 @@ void Suggest_goal_update(individual *leaderboard)
     }
     if (pos <= 3 && curr != NULL)
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 7; i++)
         {
             suggest += curr->stepcount[i];
         }
@@ -245,4 +245,18 @@ void Generate_leader_board(group *gptr)
         pos++;
         present = present->next;
     }
+}
+
+void Display_group_info(group * gptr,leader *lptr)
+{
+    printf("Group name :- %s\n",gptr->gr_name);
+    printf("Group id :- %d\n",gptr->gr_id);
+    printf("Group weekly goal :-%d \n",gptr->gr_goal);
+    printf("Group members :-\n");
+    printf("ID \t Name \t\n");
+    for (int i = 0; i < 5; i++)
+    {
+        printf("%d \t %s\n",gptr->memberIDs[i],gptr->arr_mem[i]->Name);
+    }
+ 
 }

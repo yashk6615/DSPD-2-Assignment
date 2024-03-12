@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 // #include <stddef.h>
 
 #define SIZE 5
@@ -20,10 +22,18 @@ typedef struct gr
 {
     int gr_id;
     char gr_name[NAME_SIZE];
+    int memberIDs[5];
     individual *arr_mem[SIZE];
     int gr_goal;
     struct gr *next;
 } group;
+
+typedef struct leaderboard
+{
+    char gr_name[SIZE];
+    int gr_stepcount;
+    struct leaderboard *next;
+} leader;
 
 individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, individual *head)
 {
@@ -39,7 +49,6 @@ individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, in
     {
         scanf("%d", nptr->stepcount[i]);
         fflush(stdin);
-        
     }
 
     individual *curr, *prev;
@@ -61,6 +70,19 @@ individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, in
         head = nptr;
     }
     return head;
+}
+
+// Implement the function to create a new group
+group *createGroup(int groupID, char *groupName, int weeklyGroupGoal)
+{
+    group *newGroup = (group *)malloc(sizeof(group));
+    newGroup->gr_id = groupID;
+    strcpy(newGroup->gr_name, groupName);
+    newGroup->gr_goal = weeklyGroupGoal;
+    memset(newGroup->arr_mem, 0, SIZE * sizeof(newGroup->arr_mem[0]));
+
+    newGroup->next = NULL;
+    return newGroup;
 }
 
 individual *Delete_individual(int id, individual *head)
@@ -185,5 +207,42 @@ void Suggest_goal_update(individual *leaderboard)
     else
     {
         printf("Leaderboard not available now \n One can set their goal on their own at their pace");
+    }
+}
+
+void Generate_leader_board(group *gptr)
+{
+    leader *lptr, *prev = NULL;
+    group *curr = gptr;
+    int flag = 1;
+    while (gptr != NULL)
+    {
+        leader *nptr;
+        strcpy(nptr->gr_name, curr->gr_name);
+        int sum = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                sum += curr->arr_mem[i]->stepcount[j];
+            }
+        }
+        prev->next = nptr;
+        nptr->next = NULL;
+        if (flag)
+        {
+            lptr = nptr;
+            flag = 0;
+        }
+    }
+    lptr = MergeSort(lptr);
+    leader *present = lptr;
+    int pos = 1;
+    printf("Position \t Group Name \t Stepcount \n");
+    while (pos <= 3 && present != NULL)
+    {
+        printf("%d \t %s \t %d \n", pos, present->gr_name, present->gr_stepcount);
+        pos++;
+        present = present->next;
     }
 }

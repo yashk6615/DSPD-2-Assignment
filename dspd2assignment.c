@@ -37,7 +37,7 @@ typedef struct leaderboard
 
 individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, individual *head)
 {
-    individual *nptr;
+
     individual *newIndividual = (individual *)malloc(sizeof(individual));
     newIndividual->mem_id = ID;
     strcpy(newIndividual->Name, name);
@@ -49,20 +49,20 @@ individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, in
     individual *curr, *prev;
     curr = head;
     prev = NULL;
-    while (nptr->mem_id > curr->mem_id && curr != NULL)
+    while (newIndividual->mem_id > curr->mem_id && curr != NULL)
     {
         prev = curr;
         curr = curr->next;
     }
     if (prev != NULL)
     {
-        prev->next = nptr;
-        nptr->next = curr;
+        prev->next = newIndividual;
+        newIndividual->next = curr;
     }
     else
     {
-        nptr->next = curr;
-        head = nptr;
+        newIndividual->next = curr;
+        head = newIndividual;
     }
     return head;
 }
@@ -180,9 +180,9 @@ void Check_group_achievement(int group_id, group *head)
         int sum = 0;
         for (int i = 0; i < SIZE; i++)
         {
-            if ((curr->arr_mem[i] != NULL))
+            for (int j=0;j<7 &&(curr->arr_mem[i] != NULL);j++)
             {
-                sum = sum + curr->arr_mem[i]->stepcount;
+                sum = sum + curr->arr_mem[i]->stepcount[j];
             }
         }
         if (sum >= curr->gr_goal)
@@ -263,7 +263,7 @@ void Suggest_goal_update(individual *leaderboard)
     }
 }
 
-void Generate_leader_board(group *gptr)
+/*void Generate_leader_board(group *gptr)
 {
     leader *lptr, *prev = NULL;
     group *curr = gptr;
@@ -298,7 +298,7 @@ void Generate_leader_board(group *gptr)
         pos++;
         present = present->next;
     }
-}
+}*/
 
 void Display_group_info(group *gptr, leader *lptr)
 {
@@ -340,4 +340,33 @@ group *Delete_group(int id, group *gptr)
         printf("group does not exist");
     }
     return gptr;
+}
+
+int main()
+{
+    FILE *fptr = fopen("input.txt", "r");
+    individual *head = (individual *)malloc(sizeof(individual));
+    head = NULL;
+    for (int i = 0; i < 20; i++)
+    {
+        int mem_id, age, ind_goal;
+        char Name[NAME_SIZE];
+        int stepcount[7];
+        fscanf(fptr, "%d", &mem_id);
+        fflush(stdin);
+        fscanf(fptr, "%s", Name);
+        fflush(stdin);
+        fscanf(fptr, "%d", &age);
+        fflush(stdin);
+        fscanf(fptr, "%d", &ind_goal);
+        fflush(stdin);
+
+        for (int i = 0; i < 7; i++)
+        {
+            fscanf(fptr, "%d", &stepcount[i]);
+            // printf("%d ",stepcount[i]);
+        }
+        Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
+    }
+    return 0;
 }

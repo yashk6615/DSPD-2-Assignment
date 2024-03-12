@@ -180,7 +180,7 @@ void Check_group_achievement(int group_id, group *head)
         int sum = 0;
         for (int i = 0; i < SIZE; i++)
         {
-            for (int j=0;j<7 &&(curr->arr_mem[i] != NULL);j++)
+            for (int j = 0; j < 7 && (curr->arr_mem[i] != NULL); j++)
             {
                 sum = sum + curr->arr_mem[i]->stepcount[j];
             }
@@ -340,6 +340,113 @@ group *Delete_group(int id, group *gptr)
         printf("group does not exist");
     }
     return gptr;
+}
+
+group *Merge_groups(int group_id_1, int group_id_2,group *head)
+{
+    // Find the groups with the given IDs
+    group *group1 = NULL;
+    group *group2 = NULL;
+    group *curr = head;
+    while (curr != NULL)
+    {
+        if (curr->gr_id == group_id_1)
+        {
+            group1 = curr;
+        }
+        if (curr->gr_id == group_id_2)
+        {
+            group2 = curr;
+        }
+        curr = curr->next;
+    }
+
+    // Check if the groups were found
+    if (group1 == NULL || group2 == NULL)
+    {
+        printf("One or both of the groups not found.\n");
+        return NULL;
+    }
+
+    // Create a new group with a new ID and name
+    int new_group_id = group1->gr_id > group2->gr_id ? group1->gr_id : group2->gr_id + 1;
+    char new_group_name[NAME_SIZE];
+    strcpy(new_group_name, "Merged Group");
+
+    // Calculate the new group goal
+    int new_group_goal = group1->gr_goal + group2->gr_goal;
+
+    // Create a new group
+    group *new_group = (group *)malloc(sizeof(group));
+    new_group->gr_id = new_group_id;
+    strcpy(new_group->gr_name, new_group_name);
+    new_group->gr_goal = new_group_goal;
+    memset(new_group->arr_mem, 0, SIZE * sizeof(new_group->arr_mem[0]));
+
+    // Merge the members of the two groups into the new group
+    int i = 0;
+    while (i < SIZE)
+    {
+        if (group1->arr_mem[i] != NULL)
+        {
+            new_group->arr_mem[i] = group1->arr_mem[i];
+            new_group->memberIDs[i] = group1->memberIDs[i];
+            i++;
+        }
+    }
+    int j=0;
+    while (i<SIZE)
+    {
+
+        if (group2->arr_mem[i] != NULL)
+        {
+            new_group->arr_mem[i] = group2->arr_mem[j];
+            new_group->memberIDs[i] = group2->memberIDs[j];
+            j++;
+            i++;
+        }
+    }
+
+    // Remove the original groups from the list of groups
+    if (head == group1)
+    {
+        head = group1->next;
+    }
+    else
+    {
+        curr = head;
+        while (curr->next != group1)
+        {
+            curr = curr->next;
+        }
+        curr->next = group1->next;
+    }
+    free(group1);
+
+    if (head == group2)
+    {
+        head = group2->next;
+    }
+    else
+    {
+        curr = head;
+        while (curr->next != group2)
+        {
+            curr = curr->next;
+        }
+        curr->next = group2->next;
+    }
+    free(group2);
+
+    // Add the new group to the list of groups
+    curr = head;
+    while (curr->next != NULL)
+    {
+        curr = curr->next;
+    }
+    curr->next = new_group;
+
+    return new_group;
 }
 
 int main()

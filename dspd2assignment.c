@@ -263,14 +263,75 @@ void Suggest_goal_update(individual *leaderboard)
     }
 }
 
-/*void Generate_leader_board(group *gptr)
+// Function to merge two sorted linked lists
+leader* merge(leader* left, leader* right) {
+    if (left == NULL)
+        return right;
+    if (right == NULL)
+        return left;
+
+    leader* result = NULL;
+
+    if (left->gr_stepcount >= right->gr_stepcount) {
+        result = left;
+        result->next = merge(left->next, right);
+    } else {
+        result = right;
+        result->next = merge(left, right->next);
+    }
+
+    return result;
+}
+
+// Function to split the linked list into two halves
+void split(leader* source, leader** frontRef, leader** backRef) {
+    leader* slow;
+    leader* fast;
+    slow = source;
+    fast = source->next;
+
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = NULL;
+}
+
+// Merge sort function for sorting the leaderboard
+leader* mergeSort(leader** headRef) {
+    leader* head = *headRef;
+    leader* a;
+    leader* b;
+
+    if (head == NULL || head->next == NULL) {
+        return NULL;
+    }
+
+    split(head, &a, &b);
+
+    mergeSort(&a);
+    mergeSort(&b);
+
+    *headRef = merge(a, b);
+    return *headRef;
+}
+
+
+
+void Generate_leader_board(group *gptr)
 {
     leader *lptr, *prev = NULL;
     group *curr = gptr;
     int flag = 1;
-    while (gptr != NULL)
+    while (curr != NULL)
     {
-        leader *nptr;
+        leader *nptr=(leader*)malloc(sizeof(leader));
         strcpy(nptr->gr_name, curr->gr_name);
         int sum = 0;
         for (int i = 0; i < 5; i++)
@@ -280,15 +341,16 @@ void Suggest_goal_update(individual *leaderboard)
                 sum += curr->arr_mem[i]->stepcount[j];
             }
         }
-        prev->next = nptr;
+        prev->next = lptr;
         nptr->next = NULL;
         if (flag)
         {
             lptr = nptr;
             flag = 0;
         }
+        curr=curr->next;
     }
-    lptr = MergeSort(lptr);
+    lptr = mergeSort(&lptr);
     leader *present = lptr;
     int pos = 1;
     printf("Position \t Group Name \t Stepcount \n");
@@ -298,7 +360,7 @@ void Suggest_goal_update(individual *leaderboard)
         pos++;
         present = present->next;
     }
-}*/
+}
 
 void Display_group_info(group *gptr, leader *lptr)
 {
@@ -475,5 +537,32 @@ int main()
         }
         Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
     }
+    fclose(fptr);
+
+    group *ghead = (group *)malloc(sizeof(group));
+    FILE * gptr = fopen("group.txt","r");
+    int group_id;
+    int group_goal;
+    int NO_of_members;
+    char group_name[NAME_SIZE];
+    int members_Id[4];
+    for (int i = 0; i < 4; i++)
+    {
+        
+        fscanf(gptr,"%d",&group_id);
+        fflush(stdin);
+        fscanf(gptr,"%s",group_name);
+        fflush(stdin);
+        fscanf(gptr, "%d", &group_goal);
+        fflush(stdin);
+        fscanf(gptr, "%d", &NO_of_members);
+        fflush(stdin);
+        for(int i = 0;i < NO_of_members;i++)
+        {
+            fscanf(gptr,"%d",&members_Id[i]);
+        }
+        
+    }
+    fclose(gptr);
     return 0;
 }

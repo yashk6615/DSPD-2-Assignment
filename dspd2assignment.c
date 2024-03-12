@@ -93,8 +93,49 @@ group *createGroup(int groupID, char *groupName, int weeklyGroupGoal, group *hea
         current->next = newGroup;
     }
     return head;
+}
 
-    
+int isIndividualInAnyGroup(group *groupList, individual *individual)
+{
+    group *currentGroup = groupList;
+    int flag = 0;
+    while (currentGroup != NULL)
+    {
+        for (int i = 0; i < 5; ++i)
+        {
+            if (currentGroup->arr_mem[i] == individual && !flag)
+            {
+                flag = 1;
+            }
+        }
+        currentGroup = currentGroup->next;
+    }
+    return flag;
+}
+
+void addIndividualToGroup(group *group1, individual *individual1, group *groupList)
+{
+    if (group1 == NULL || individual1 == NULL)
+    {
+        printf("Group or individual does not exist.\n");
+        return;
+    }
+
+    if (isIndividualInAnyGroup(groupList, individual1))
+    {
+        printf("Individual is already in another group.\n");
+        return;
+    }
+
+    for (int i = 0; i < 5; ++i)
+    {
+        if (group1->arr_mem[i] == NULL)
+        {
+            group1->arr_mem[i] = individual1;
+            return;
+        }
+    }
+    printf("Group is full.\n");
 }
 
 individual *Delete_individual(int id, individual *head)

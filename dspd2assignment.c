@@ -81,10 +81,33 @@ group* Delete_group(int id, group* gptr)
     return gptr;
 }
 
-group* Merge_groups(group* id1, group* id2, group* gptr)
+group* Merge_groups(int id1, int id2, group* gptr)
 {
-    group *ptr, *prev;
-    ptr = gptr;
-    prev = NULL;
-    gptr = Create_group();
+    group *ptr1, *ptr2;
+    ptr1 = gptr;
+    ptr2 = gptr;
+    while (ptr1 != NULL && ptr2 != NULL && (ptr1->gr_id == id1 || ptr2->gr_id == id2))
+    {
+        if (ptr1->gr_id != id1)
+        {
+            ptr1 = ptr1->next;
+        }
+        if (ptr2->gr_id == id2)
+        {
+            ptr2 = ptr2->next;
+        } 
+    }
+    int id = ptr1->gr_id;
+    char *name = (char*)malloc(sizeof(ptr1->gr_name));
+    strcpy(name,ptr1->gr_name);
+    gptr = Create_group(id,name, ptr1,gptr);
+    gptr = Delete_group(ptr1->gr_id, gptr);
+    gptr = Delete_group(ptr2->gr_id,gptr);
+    return gptr;
+}
+
+void get_top_3(individual* head)
+{
+    individual *arr[3];
+    arr[0] = arr[1] = arr[2]->stepcount = 0;
 }

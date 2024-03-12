@@ -264,18 +264,22 @@ void Suggest_goal_update(individual *leaderboard)
 }
 
 // Function to merge two sorted linked lists
-leader* merge(leader* left, leader* right) {
+leader *merge(leader *left, leader *right)
+{
     if (left == NULL)
         return right;
     if (right == NULL)
         return left;
 
-    leader* result = NULL;
+    leader *result = NULL;
 
-    if (left->gr_stepcount >= right->gr_stepcount) {
+    if (left->gr_stepcount >= right->gr_stepcount)
+    {
         result = left;
         result->next = merge(left->next, right);
-    } else {
+    }
+    else
+    {
         result = right;
         result->next = merge(left, right->next);
     }
@@ -284,15 +288,18 @@ leader* merge(leader* left, leader* right) {
 }
 
 // Function to split the linked list into two halves
-void split(leader* source, leader** frontRef, leader** backRef) {
-    leader* slow;
-    leader* fast;
+void split(leader *source, leader **frontRef, leader **backRef)
+{
+    leader *slow;
+    leader *fast;
     slow = source;
     fast = source->next;
 
-    while (fast != NULL) {
+    while (fast != NULL)
+    {
         fast = fast->next;
-        if (fast != NULL) {
+        if (fast != NULL)
+        {
             slow = slow->next;
             fast = fast->next;
         }
@@ -304,12 +311,14 @@ void split(leader* source, leader** frontRef, leader** backRef) {
 }
 
 // Merge sort function for sorting the leaderboard
-leader* mergeSort(leader** headRef) {
-    leader* head = *headRef;
-    leader* a;
-    leader* b;
+leader *mergeSort(leader **headRef)
+{
+    leader *head = *headRef;
+    leader *a;
+    leader *b;
 
-    if (head == NULL || head->next == NULL) {
+    if (head == NULL || head->next == NULL)
+    {
         return NULL;
     }
 
@@ -322,7 +331,75 @@ leader* mergeSort(leader** headRef) {
     return *headRef;
 }
 
-
+void get_top_3(individual *individual_list)
+{
+    individual *current = individual_list;
+    int top3[3] = {0, 0, 0};
+    int top3_individuals[3] = {0, 0, 0};
+    int count = 0;
+    while (current != NULL)
+    {
+        int total_steps = 0;
+        for (int i = 0; i < 7; i++)
+        {
+            total_steps += current->stepcount[i];
+        }
+        if (total_steps >= current->ind_goal)
+        {
+            if (count < 3)
+            {
+                top3[count] = total_steps;
+                top3_individuals[count] = current->mem_id;
+                count++;
+            }
+            else
+            {
+                if (top3[0] < total_steps)
+                {
+                    top3[2] = top3[1];
+                    top3_individuals[2] = top3_individuals[1];
+                    top3[1] = top3[0];
+                    top3_individuals[1] = top3_individuals[0];
+                    top3[0] = total_steps;
+                    top3_individuals[0] = current->mem_id;
+                }
+                else if (top3[1] < total_steps)
+                {
+                    top3[2] = top3[1];
+                    top3_individuals[2] = top3_individuals[1];
+                    top3[1] = total_steps;
+                    top3_individuals[1] = current->mem_id;
+                }
+                else if (top3[2] < total_steps)
+                {
+                    top3[2] = total_steps;
+                    top3_individuals[2] = current->mem_id;
+                }
+            }
+        }
+        current = current->next;
+    }
+    printf("Top 3 individuals:\n");
+    for (int i = 0; i < 3; i++)
+    {
+        if (top3_individuals[i] != 0)
+        {
+            individual *curr = individual_list;
+            while (curr->mem_id != top3_individuals[i])
+            {
+                curr = curr->next;
+            }
+            if (curr == NULL)
+            {
+                printf("ERROR");
+            }
+            else
+            {
+                printf("%d. ID: %d, Name: %s, Total Steps: %d\n", i + 1, top3_individuals[i], curr->Name, top3[i]);
+            }
+        }
+    }
+}
 
 void Generate_leader_board(group *gptr)
 {
@@ -331,7 +408,7 @@ void Generate_leader_board(group *gptr)
     int flag = 1;
     while (curr != NULL)
     {
-        leader *nptr=(leader*)malloc(sizeof(leader));
+        leader *nptr = (leader *)malloc(sizeof(leader));
         strcpy(nptr->gr_name, curr->gr_name);
         int sum = 0;
         for (int i = 0; i < 5; i++)
@@ -348,7 +425,7 @@ void Generate_leader_board(group *gptr)
             lptr = nptr;
             flag = 0;
         }
-        curr=curr->next;
+        curr = curr->next;
     }
     lptr = mergeSort(&lptr);
     leader *present = lptr;
@@ -404,7 +481,7 @@ group *Delete_group(int id, group *gptr)
     return gptr;
 }
 
-group *Merge_groups(int group_id_1, int group_id_2,group *head)
+group *Merge_groups(int group_id_1, int group_id_2, group *head)
 {
     // Find the groups with the given IDs
     group *group1 = NULL;
@@ -456,8 +533,8 @@ group *Merge_groups(int group_id_1, int group_id_2,group *head)
             i++;
         }
     }
-    int j=0;
-    while (i<SIZE)
+    int j = 0;
+    while (i < SIZE)
     {
 
         if (group2->arr_mem[i] != NULL)
@@ -538,9 +615,10 @@ int main()
         Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
     }
     fclose(fptr);
+    get_top_3(head);
 
     group *ghead = (group *)malloc(sizeof(group));
-    FILE * gptr = fopen("group.txt","r");
+    FILE *gptr = fopen("group.txt", "r");
     int group_id;
     int group_goal;
     int NO_of_members;
@@ -548,21 +626,35 @@ int main()
     int members_Id[4];
     for (int i = 0; i < 4; i++)
     {
-        
-        fscanf(gptr,"%d",&group_id);
+        group *grp = (group *)malloc(sizeof(group));
+        fscanf(gptr, "%d", &group_id);
         fflush(stdin);
-        fscanf(gptr,"%s",group_name);
+        fscanf(gptr, "%s", group_name);
         fflush(stdin);
         fscanf(gptr, "%d", &group_goal);
         fflush(stdin);
+        grp = createGroup(group_id, group_name, group_goal, ghead);
         fscanf(gptr, "%d", &NO_of_members);
         fflush(stdin);
-        for(int i = 0;i < NO_of_members;i++)
+        for (int i = 0; i < NO_of_members; i++)
         {
-            fscanf(gptr,"%d",&members_Id[i]);
+            fscanf(gptr, "%d", &members_Id[i]);
+            individual *curr = head;
+            while (curr->mem_id != group_id)
+            {
+                curr = curr->next;
+            }
+            if (curr != NULL)
+            {
+                printf("ERROR:-The individual with member id-%d not found in the list", group_id);
+            }
+            else
+            {
+                addIndividualToGroup(grp, curr, ghead);
+            }
         }
-        
     }
+
     fclose(gptr);
     return 0;
 }

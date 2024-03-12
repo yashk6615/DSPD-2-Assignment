@@ -13,7 +13,7 @@ typedef struct mem
     char Name[NAME_SIZE];
     int age;
     int ind_goal;
-    int *stepcount;
+    int stepcount[7];
     struct mem *next;
 
 } individual;
@@ -35,21 +35,16 @@ typedef struct leaderboard
     struct leaderboard *next;
 } leader;
 
-individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, individual *head)
+individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, individual *head)
 {
     individual *nptr;
-    scanf("%d", nptr->mem_id);
-    fflush(stdin);
-    scanf("%f", nptr->Name);
-    scanf("%d", nptr->age);
-    fflush(stdin);
-    scanf("%d", nptr->ind_goal);
-
-    for (int i = 0; i < SIZE; i++)
-    {
-        scanf("%d", nptr->stepcount[i]);
-        fflush(stdin);
-    }
+    individual* newIndividual = (individual*)malloc(sizeof(individual));
+    newIndividual->mem_id = ID;
+    strcpy(newIndividual->Name, name);
+    newIndividual->age = age;
+    newIndividual->ind_goal = goal;
+    memcpy(newIndividual->stepcount, weeksteps, 7 * sizeof(int));
+    newIndividual->next = NULL;
 
     individual *curr, *prev;
     curr = head;

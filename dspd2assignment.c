@@ -35,21 +35,18 @@ typedef struct leaderboard
     struct leaderboard *next;
 } leader;
 
-individual *Add_Person(int id, char *name, int age, int goal, int *weeksteps, individual *head)
+individual *Add_Person(int mem_id,char Name[],int age,int ind_goal,int *stepcount,individual * head)
 {
     individual *nptr;
-    scanf("%d", nptr->mem_id);
-    fflush(stdin);
-    scanf("%f", nptr->Name);
-    scanf("%d", nptr->age);
-    fflush(stdin);
-    scanf("%d", nptr->ind_goal);
-
-    for (int i = 0; i < SIZE; i++)
+    nptr->mem_id = mem_id;
+    nptr->Name = Name;
+    nptr->age = age;
+    nptr->ind_goal = ind_goal;
+    for(int i = 0; i < 7; i++)
     {
-        scanf("%d", nptr->stepcount[i]);
-        fflush(stdin);
+        nptr->stepcount[i] = stepcount[i];
     }
+
 
     individual *curr, *prev;
     curr = head;
@@ -244,5 +241,32 @@ void Generate_leader_board(group *gptr)
         printf("%d \t %s \t %d \n", pos, present->gr_name, present->gr_stepcount);
         pos++;
         present = present->next;
+    }
+}
+
+int main()
+{
+    FILE * fptr = fopen("input.txt","r");
+    individual * head = (individual *)malloc(sizeof(individual));
+    for(int i = 0;i < 20; i++)
+    {
+        int mem_id,age,ind_goal;
+        char Name[NAME_SIZE];
+        int * stepcount[7];
+        fscanf(fptr,"%d",&mem_id);
+        fflush(stdin);
+        fscanf(fptr,"%s",Name);
+        fflush(stdin);
+        fscanf(fptr,"%d",&age);
+        fflush(stdin);
+        fscanf(fptr,"%d",&ind_goal);
+        fflush(stdin);
+
+        for(int i = 0 ; i < 7; i++)
+        {
+            fscanf(fptr, "%d",stepcount[i]);
+        }
+        Add_Person(mem_id,Name,age,ind_goal,stepcount,head);
+
     }
 }

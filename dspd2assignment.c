@@ -38,7 +38,7 @@ typedef struct leaderboard
 individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, individual *head)
 {
     individual *nptr;
-    individual* newIndividual = (individual*)malloc(sizeof(individual));
+    individual *newIndividual = (individual *)malloc(sizeof(individual));
     newIndividual->mem_id = ID;
     strcpy(newIndividual->Name, name);
     newIndividual->age = age;
@@ -67,8 +67,7 @@ individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, in
     return head;
 }
 
-
-group *createGroup(int groupID, char *groupName, int weeklyGroupGoal)
+group *createGroup(int groupID, char *groupName, int weeklyGroupGoal, group *head)
 {
     group *newGroup = (group *)malloc(sizeof(group));
     newGroup->gr_id = groupID;
@@ -77,7 +76,25 @@ group *createGroup(int groupID, char *groupName, int weeklyGroupGoal)
     memset(newGroup->arr_mem, 0, SIZE * sizeof(newGroup->arr_mem[0]));
 
     newGroup->next = NULL;
-    return newGroup;
+
+    if (head == NULL || head->gr_id >= newGroup->gr_id)
+    {
+        newGroup->next = head;
+        head = newGroup;
+    }
+    else
+    {
+        group *current = head;
+        while (current->next != NULL && current->next->gr_id < newGroup->gr_id)
+        {
+            current = current->next;
+        }
+        newGroup->next = current->next;
+        current->next = newGroup;
+    }
+    return head;
+
+    
 }
 
 individual *Delete_individual(int id, individual *head)
@@ -242,16 +259,15 @@ void Generate_leader_board(group *gptr)
     }
 }
 
-void Display_group_info(group * gptr,leader *lptr)
+void Display_group_info(group *gptr, leader *lptr)
 {
-    printf("Group name :- %s\n",gptr->gr_name);
-    printf("Group id :- %d\n",gptr->gr_id);
-    printf("Group weekly goal :-%d \n",gptr->gr_goal);
+    printf("Group name :- %s\n", gptr->gr_name);
+    printf("Group id :- %d\n", gptr->gr_id);
+    printf("Group weekly goal :-%d \n", gptr->gr_goal);
     printf("Group members :-\n");
     printf("ID \t Name \t\n");
     for (int i = 0; i < 5; i++)
     {
-        printf("%d \t %s\n",gptr->memberIDs[i],gptr->arr_mem[i]->Name);
+        printf("%d \t %s\n", gptr->memberIDs[i], gptr->arr_mem[i]->Name);
     }
- 
 }

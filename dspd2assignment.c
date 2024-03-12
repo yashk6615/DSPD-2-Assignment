@@ -312,3 +312,32 @@ void Display_group_info(group *gptr, leader *lptr)
         printf("%d \t %s\n", gptr->memberIDs[i], gptr->arr_mem[i]->Name);
     }
 }
+
+group *Delete_group(int id, group *gptr)
+{
+    group *ptr, *prev;
+    ptr = gptr;
+    prev = NULL;
+    while (ptr != NULL && ptr->gr_id != id)
+    {
+        prev = ptr;
+        ptr = ptr->next;
+    }
+    if (ptr != NULL)
+    {
+        if (prev == NULL)
+        {
+            gptr = ptr->next;
+        }
+        else
+        {
+            prev->next = ptr->next;
+        }
+        free(ptr);
+    }
+    else
+    {
+        printf("group does not exist");
+    }
+    return gptr;
+}

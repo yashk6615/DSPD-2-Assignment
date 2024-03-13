@@ -49,20 +49,30 @@ individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, in
     individual *curr, *prev;
     curr = head;
     prev = NULL;
-    while (newIndividual->mem_id > curr->mem_id && curr != NULL)
+    if (curr == NULL)
     {
-        prev = curr;
-        curr = curr->next;
-    }
-    if (prev != NULL)
-    {
-        prev->next = newIndividual;
-        newIndividual->next = curr;
+        head=newIndividual;
+       
     }
     else
     {
-        newIndividual->next = curr;
-        head = newIndividual;
+        while (newIndividual->mem_id > curr->mem_id && curr != NULL)
+        {
+            prev = curr;
+            curr = curr->next;
+        }
+        //printf("...");
+        if (prev != NULL)
+        {
+            prev->next = newIndividual;
+            newIndividual->next = curr;
+        }
+
+        else
+        {
+            newIndividual->next = curr;
+            head = newIndividual;
+        }
     }
     return head;
 }
@@ -337,7 +347,8 @@ void get_top_3(individual *individual_list)
     int top3[3] = {0, 0, 0};
     int top3_individuals[3] = {0, 0, 0};
     int count = 0;
-    while (current != NULL)
+    int i=0;
+    while (current != NULL &&i<20)
     {
         int total_steps = 0;
         for (int i = 0; i < 7; i++)
@@ -378,6 +389,7 @@ void get_top_3(individual *individual_list)
             }
         }
         current = current->next;
+        i++;
     }
     printf("Top 3 individuals:\n");
     for (int i = 0; i < 3; i++)
@@ -588,11 +600,37 @@ group *Merge_groups(int group_id_1, int group_id_2, group *head)
     return new_group;
 }
 
+void display_indiv_info(individual *ind_list)
+{
+    individual *curr = ind_list;
+    printf("S.no \t Name \t Age \t Daily Goal \t Stepcount\n");
+    int i = 0;
+    while (curr != NULL && i<20)
+    {
+        printf("\n %d \t %s \t %d \t %d\t ", curr->mem_id, curr->Name, curr->age, curr->ind_goal);
+        for (int i = 0; i < 7; i++)
+        {
+            printf("%d ", curr->stepcount[i]);
+        }
+        printf("\n");
+        curr = curr->next;
+        i++;
+        printf("...%d",i);
+    }
+    if (curr == NULL)
+    {
+        return;
+    }
+}
+
 int main()
 {
+    // printf("hello\n");
+    //individual* dptr=head;
+    //individual *head = NULL;
     FILE *fptr = fopen("input.txt", "r");
     individual *head = (individual *)malloc(sizeof(individual));
-    head = NULL;
+   // head->mem_id=1110;
     for (int i = 0; i < 20; i++)
     {
         int mem_id, age, ind_goal;
@@ -600,24 +638,36 @@ int main()
         int stepcount[7];
         fscanf(fptr, "%d", &mem_id);
         fflush(stdin);
+        // printf("%d ",mem_id);
         fscanf(fptr, "%s", Name);
         fflush(stdin);
+        // printf("%s ",Name);
         fscanf(fptr, "%d", &age);
         fflush(stdin);
+        // printf("%d ",age);
         fscanf(fptr, "%d", &ind_goal);
         fflush(stdin);
+        // printf("%d ",ind_goal);
+        // printf("\n");
 
         for (int i = 0; i < 7; i++)
         {
             fscanf(fptr, "%d", &stepcount[i]);
             // printf("%d ",stepcount[i]);
         }
-        Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
+        head = Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
     }
+   // Delete_individual(1110,dptr);
+    display_indiv_info(head);
+    printf("hello");
+
     fclose(fptr);
+    
+    printf("Get Top 3 Individual:\n");
     get_top_3(head);
 
-    group *ghead = (group *)malloc(sizeof(group));
+     group *ghead = (group *)malloc(sizeof(group));
+    //group *ghead = NULL;
     FILE *gptr = fopen("group.txt", "r");
     int group_id;
     int group_goal;
@@ -636,6 +686,7 @@ int main()
         grp = createGroup(group_id, group_name, group_goal, ghead);
         fscanf(gptr, "%d", &NO_of_members);
         fflush(stdin);
+        //printf("%d ", NO_of_members);
         for (int i = 0; i < NO_of_members; i++)
         {
             fscanf(gptr, "%d", &members_Id[i]);
@@ -656,5 +707,9 @@ int main()
     }
 
     fclose(gptr);
+
+    printf("Now checking group achievement with group id 2457\n");
+    Check_group_achievement(2457, ghead);
+
     return 0;
 }

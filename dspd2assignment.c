@@ -30,7 +30,7 @@ typedef struct gr
 
 typedef struct leaderboard
 {
-    char gr_name[SIZE];
+    char gr_name[NAME_SIZE];
     int gr_stepcount;
     struct leaderboard *next;
 } leader;
@@ -391,33 +391,62 @@ leader *mergeSort(leader *head)
     return head;
 }
 
-void Generate_leader_board(group *gptr)
-{
-    leader *lptr= NULL, *prev = NULL, *nptr;
+// void Generate_leader_board(group *gptr)
+// {
+//     leader *lptr= NULL, *prev = NULL, *nptr;
+//     group *curr = gptr;
+//     while (curr != NULL)
+//     {
+//         nptr = (leader *)malloc(sizeof(leader));
+//         strcpy(nptr->gr_name, curr->gr_name);
+//         int sum = 0;
+//         for (int i = 0; i < 5; i++)
+//         {
+//             for (int j = 0; j < 7; j++)
+//             {
+//                 sum += curr->arr_mem[i]->stepcount[j];
+//             }
+//         }
+//         nptr->next = lptr;
+//         lptr = nptr;
+//         printf("%s",curr->gr_name);
+//         curr = curr->next;
+//     }
+//     lptr = mergeSort(lptr);
+//     leader *present = lptr;
+//     int pos = 1;
+//     printf("Position \t Group Name \t Stepcount \n");
+//     while (pos <= 3 && present != NULL)
+//     {
+//         printf("%d \t %s \t %d \n", pos, present->gr_name, present->gr_stepcount);
+//         pos++;
+//         present = present->next;
+//     }
+// }
+
+void Generate_leader_board(group *gptr) {
+    leader *lptr = NULL, *prev = NULL, *nptr;
     group *curr = gptr;
-    while (curr != NULL)
-    {
+    while (curr != NULL) {
         nptr = (leader *)malloc(sizeof(leader));
         strcpy(nptr->gr_name, curr->gr_name);
         int sum = 0;
-        for (int i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 7; j++)
-            {
-                sum += curr->arr_mem[i]->stepcount[j];
+        for (int i = 0; i < SIZE; i++) { // Iterate over the members of the group
+            if (curr->arr_mem[i] != NULL) { // Check if member exists
+                for (int j = 0; j < 7; j++) {
+                    sum += curr->arr_mem[i]->stepcount[j];
+                }
             }
         }
+        nptr->gr_stepcount = sum; // Assign the calculated sum to gr_stepcount
         nptr->next = lptr;
         lptr = nptr;
-        printf("%s",curr->gr_name);
         curr = curr->next;
     }
-    lptr = mergeSort(lptr);
     leader *present = lptr;
     int pos = 1;
     printf("Position \t Group Name \t Stepcount \n");
-    while (pos <= 3 && present != NULL)
-    {
+    while (pos <= 3 && present != NULL) {
         printf("%d \t %s \t %d \n", pos, present->gr_name, present->gr_stepcount);
         pos++;
         present = present->next;

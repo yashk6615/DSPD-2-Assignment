@@ -67,7 +67,7 @@ individual *Add_Person(int ID, char *name, int age, int goal, int *weeksteps, in
     return head;
 }
 
-group *createGroup(int groupID, char *groupName, int weeklyGroupGoal,group *head)
+group *createGroup(int groupID, char *groupName, int weeklyGroupGoal, group *head)
 {
     group *newGroup = (group *)malloc(sizeof(group));
     newGroup->gr_id = groupID;
@@ -77,8 +77,6 @@ group *createGroup(int groupID, char *groupName, int weeklyGroupGoal,group *head
     memset(newGroup->arr_mem, 0, SIZE * sizeof(newGroup->arr_mem[0]));
 
     newGroup->next = NULL;
-
-    // group *head = *headptr;
 
     if (head == NULL || head->gr_id >= newGroup->gr_id)
     {
@@ -116,7 +114,7 @@ int isIndividualInAnyGroup(group *groupList, individual *individual)
     return found;
 }
 
-void addIndividualToGroup(group *group1, individual *individual1,group *groupList)
+void addIndividualToGroup(group *group1, individual *individual1, group *groupList)
 {
     if (group1 == NULL || individual1 == NULL)
     {
@@ -134,9 +132,8 @@ void addIndividualToGroup(group *group1, individual *individual1,group *groupLis
     {
         if (group1->arr_mem[i] == NULL)
         {
-            group1->memberIDs[i]=individual1->mem_id;
+            group1->memberIDs[i] = individual1->mem_id;
             group1->arr_mem[i] = individual1;
-            printf("successful\n");
             return;
         }
     }
@@ -180,10 +177,10 @@ void Check_group_achievement(int group_id, group *head)
 {
     group *curr = head;
     int flag = 0;
-    while (group_id != curr->gr_id && curr != NULL)
+    while (curr != NULL && group_id != curr->gr_id)
     {
         curr = curr->next;
-        if (group_id == curr->gr_id)
+        if (curr != NULL && group_id == curr->gr_id)
         {
             flag = 1;
         }
@@ -220,84 +217,102 @@ void Check_group_achievement(int group_id, group *head)
     }
 }
 
+int *get_top_3(individual *head, int *top3_individuals)
+{
+    individual *current = head;
+    static int top3[3] = {0, 0, 0};
+    int count = 0;
 
-int* get_top_3(individual *individual_list,int *top3_individuals) {
-  individual *current = individual_list;
-  static int top3[3] = {0, 0, 0};
-  int count = 0;
-
-  while (current != NULL) {
-    int total_steps = 0;
-    int flag = 1; // Reset flag for each individual
-    for (int i = 0; i < 7; i++) {
-      if (current->stepcount[i] > current->ind_goal) {
-        total_steps += current->stepcount[i];
-      } else {
-        flag = 0;
-        break; // No need to continue summing if goal not met
-      }
-    }
-    if (flag) {
-      if (count < 3) {
-        top3[count] = total_steps;
-        top3_individuals[count] = current->mem_id;
-        count++;
-      } else {
-        // Sort top 3 if necessary
-        for (int i = 0; i < 2; i++) {
-          for (int j = 0; j < 2 - i; j++) {
-            if (top3[j] < top3[j + 1]) {
-              int temp = top3[j];
-              top3[j] = top3[j + 1];
-              top3[j + 1] = temp;
-              temp = top3_individuals[j];
-              top3_individuals[j] = top3_individuals[j + 1];
-              top3_individuals[j + 1] = temp;
+    while (current != NULL)
+    {
+        int total_steps = 0;
+        int flag = 1; // Reset flag for each individual
+        for (int i = 0; i < 7; i++)
+        {
+            if (current->stepcount[i] > current->ind_goal)
+            {
+                total_steps += current->stepcount[i];
             }
-          }
+            else
+            {
+                flag = 0;
+                break; // No need to continue summing if goal not met
+            }
         }
-        // Reset flag for next iterations
-        flag = 0;
-      }
+        if (flag)
+        {
+            if (count < 3)
+            {
+                top3[count] = total_steps;
+                top3_individuals[count] = current->mem_id;
+                count++;
+            }
+            else
+            {
+                // Sort top 3 if necessary
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 0; j < 2 - i; j++)
+                    {
+                        if (top3[j] < top3[j + 1])
+                        {
+                            int temp = top3[j];
+                            top3[j] = top3[j + 1];
+                            top3[j + 1] = temp;
+                            temp = top3_individuals[j];
+                            top3_individuals[j] = top3_individuals[j + 1];
+                            top3_individuals[j + 1] = temp;
+                        }
+                    }
+                }
+                // Reset flag for next iterations
+                flag = 0;
+            }
+        }
+        current = current->next;
     }
-    current = current->next;
-  }
-  // Print top 3 individuals
-  printf("Top 3 individuals:\n");
-  for (int i = 0; i < 3; i++) {
-    if (top3_individuals[i] != 0) {
-      individual *curr = individual_list;
-      while (curr->mem_id != top3_individuals[i]) {
-        curr = curr->next;
-      }
-      if (curr == NULL) {
-        printf("ERROR");
-      } else {
-        printf("%d. ID: %d, Name: %s, Total Steps: %d\n", i + 1,
-               top3_individuals[i], curr->Name, top3[i]);
-      }
+    // Print top 3 individuals
+    printf("Top 3 individuals:\n");
+    for (int i = 0; i < 3; i++)
+    {
+        if (top3_individuals[i] != 0)
+        {
+            individual *curr = head;
+            while (curr->mem_id != top3_individuals[i])
+            {
+                curr = curr->next;
+            }
+            if (curr == NULL)
+            {
+                printf("ERROR");
+            }
+            else
+            {
+                printf("%d. ID: %d, Name: %s, Total Steps: %d\n", i + 1,
+                       top3_individuals[i], curr->Name, top3[i]);
+            }
+        }
     }
-  }
-  return top3;
+    return top3;
 }
 
-void Check_individual_rewards(int id,individual *head)
+void Check_individual_rewards(int id, individual *head)
 {
-    int *arr,*ptr;
-    arr = (int*)malloc(sizeof(int)*3);
-    ptr = (int*)malloc(sizeof(int)*3);
-    ptr  = get_top_3(head,arr);
+    int *arr, *ptr;
+    arr = (int *)malloc(sizeof(int) * 3);
+    ptr = (int *)malloc(sizeof(int) * 3);
+    ptr = get_top_3(head, arr);
     if (arr[0] == id)
     {
-        printf("The person with person id:%d is on top 1 of the leaderboard\n", id);
+        printf("The person with person id:%d is on top 1 of the leaderboard\nReward:100 Points\n", id);
     }
     else if (arr[1] == id)
     {
-        printf("The person with person id:%d is on top 2 of the leaderboard\n", id);
+        printf("The person with person id:%d is on top 2 of the leaderboard\nReward:75 Points\n", id);
     }
-    else if (arr[2]==id)
+    else if (arr[2] == id)
     {
-        printf("The person with person id:%d is on top 3 of the leaderboard\n", id);
+        printf("The person with person id:%d is on top 3 of the leaderboard\nReward:50 Points\n", id);
     }
     else
     {
@@ -309,14 +324,14 @@ void Check_individual_rewards(int id,individual *head)
 
 void Suggest_goal_update(individual *head)
 {
-    int *arr,*ptr,goal;
-    arr = (int*)malloc(sizeof(int)*3);
-    ptr = (int*)malloc(sizeof(int)*3);
-    ptr  = get_top_3(head,arr);
+    int *arr, *ptr, goal;
+    arr = (int *)malloc(sizeof(int) * 3);
+    ptr = (int *)malloc(sizeof(int) * 3);
+    ptr = get_top_3(head, arr);
     for (int i = 0; i < 3; i++)
     {
-        goal = ptr[i]/7;
-        printf("\nyou need to have minimum daily goal of %d for rank %d \n",goal+1,i+1);
+        goal = ptr[i] / 7;
+        printf("\nyou need to have minimum daily goal of %d for rank %d \n", goal + 1, i + 1);
     }
     free(arr);
     free(ptr);
@@ -391,16 +406,21 @@ leader *mergeSort(leader *head)
     return head;
 }
 
-void Generate_leader_board(group *gptr) {
+void Generate_leader_board(group *gptr)
+{
     leader *lptr = NULL, *prev = NULL, *nptr;
     group *curr = gptr;
-    while (curr != NULL) {
+    while (curr != NULL)
+    {
         nptr = (leader *)malloc(sizeof(leader));
         strcpy(nptr->gr_name, curr->gr_name);
         int sum = 0;
-        for (int i = 0; i < SIZE; i++) { // Iterate over the members of the group
-            if (curr->arr_mem[i] != NULL) { // Check if member exists
-                for (int j = 0; j < 7; j++) {
+        for (int i = 0; i < SIZE; i++)
+        { // Iterate over the members of the group
+            if (curr->arr_mem[i] != NULL)
+            { // Check if member exists
+                for (int j = 0; j < 7; j++)
+                {
                     sum += curr->arr_mem[i]->stepcount[j];
                 }
             }
@@ -412,9 +432,10 @@ void Generate_leader_board(group *gptr) {
     }
     leader *present = lptr;
     int pos = 1;
-    printf("Position \t Group Name \t Stepcount \n");
-    while (pos <= 3 && present != NULL) {
-        printf("%d \t %s \t %d \n", pos, present->gr_name, present->gr_stepcount);
+    printf("Position \t Group Name  \n");
+    while (pos <= 3 && present != NULL)
+    {
+        printf("%d \t %s  \n", pos, present->gr_name);
         pos++;
         present = present->next;
     }
@@ -513,13 +534,15 @@ group *Merge_groups(int group_id_1, int group_id_2, group **headptr)
     int new_group_goal = group1->gr_goal + group2->gr_goal;
 
     group *new_group = (group *)malloc(sizeof(group));
-    if (new_group == NULL) {
+    if (new_group == NULL)
+    {
 
         return NULL;
     }
     new_group->gr_id = new_group_id;
     strcpy(new_group->gr_name, new_group_name);
     new_group->gr_goal = new_group_goal;
+    memset(new_group->memberIDs, 0, SIZE * sizeof(new_group->memberIDs[0]));
     memset(new_group->arr_mem, 0, SIZE * sizeof(new_group->arr_mem[0]));
     int i = 0;
     while (i < SIZE && group1->arr_mem[i] != NULL)
@@ -547,7 +570,8 @@ group *Merge_groups(int group_id_1, int group_id_2, group **headptr)
         {
             curr = curr->next;
         }
-        if (curr != NULL) {
+        if (curr != NULL)
+        {
             curr->next = group1->next;
             free(group1);
         }
@@ -565,7 +589,8 @@ group *Merge_groups(int group_id_1, int group_id_2, group **headptr)
         {
             curr = curr->next;
         }
-        if (curr != NULL) {
+        if (curr != NULL)
+        {
             curr->next = group2->next;
             free(group2);
         }
@@ -593,7 +618,7 @@ void display_indiv_info(individual *ind_list)
 {
     individual *curr = ind_list;
     printf("S.no \t Name \t Age \t Daily Goal \t Stepcount\n");
-    int i = 0;
+
     while (curr != NULL)
     {
         printf("\n %d \t %s \t %d \t %d\t ", curr->mem_id, curr->Name, curr->age, curr->ind_goal);
@@ -603,7 +628,6 @@ void display_indiv_info(individual *ind_list)
         }
         printf("\n");
         curr = curr->next;
-        i++;
     }
     if (curr == NULL)
     {
@@ -620,6 +644,75 @@ int main()
     group *ghead;
     ghead = NULL;
     leader *lead;
+    int mem_id, age, ind_goal;
+    char Name[NAME_SIZE];
+    int stepcount[7];
+    for (int i = 0; i < 20; i++)
+    {
+        fscanf(fptr, "%d", &mem_id);
+        fflush(stdin);
+        fscanf(fptr, "%s", Name);
+        fflush(stdin);
+        fscanf(fptr, "%d", &age);
+        fflush(stdin);
+        fscanf(fptr, "%d", &ind_goal);
+        fflush(stdin);
+
+        for (int j = 0; j < 7; j++)
+        {
+            fscanf(fptr, "%d", &stepcount[j]);
+        }
+        head = Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
+        printf("%d is added\n", mem_id);
+    }
+
+    int group_id;
+    int group_goal;
+    int NO_of_members;
+    char group_name[NAME_SIZE];
+    int members_Id[4];
+    for (int i = 0; i < 4; i++)
+    {
+        fscanf(gptr, "%d", &group_id);
+        fflush(stdin);
+        fscanf(gptr, "%s", group_name);
+        fflush(stdin);
+        fscanf(gptr, "%d", &group_goal);
+        fflush(stdin);
+        ghead = createGroup(group_id, group_name, group_goal, ghead);
+        fscanf(gptr, "%d", &NO_of_members);
+        fflush(stdin);
+        for (int i = 0; i < NO_of_members; i++)
+        {
+            fscanf(gptr, "%d", &members_Id[i]);
+            individual *curr = head;
+            while (curr != NULL && curr->mem_id != members_Id[i])
+            {
+                curr = curr->next;
+            }
+            if (curr == NULL)
+            {
+                printf("ERROR:-The individual with member id-%d not found in the list\n", members_Id[i]);
+            }
+            else
+            {
+                group *current = ghead;
+                while (current != NULL && current->gr_id != group_id)
+                {
+                    current = current->next;
+                }
+                if (current == NULL)
+                {
+                    printf("ERROR:-The group with group id-%d not found in the list\n", group_id);
+                }
+                else
+                {
+                    addIndividualToGroup(current, curr, ghead);
+                }
+            }
+        }
+        printf("%d is created and added successfully \n", group_id);
+    }
 
     int choice = 0;
     while (choice != 13)
@@ -630,94 +723,83 @@ int main()
         scanf("%d", &choice);
         if (choice == 1)
         {
-            for (int i = 0; i < 20; i++)
+            printf("Enter ID : \n");
+            scanf("%d", &mem_id);
+            printf("Enter Name : \n");
+            scanf("%s", Name);
+            printf("Enter age : \n");
+            scanf("%d", &age);
+            printf("Enter individual goal : \n");
+            scanf("%d", &ind_goal);
+            printf("Enter Stepcount of 7 Days : \n");
+            for (int j = 0; j < 7; j++)
             {
-                int mem_id, age, ind_goal;
-                char Name[NAME_SIZE];
-                int stepcount[7];
-                fscanf(fptr, "%d", &mem_id);
-                fflush(stdin);
-                fscanf(fptr, "%s", Name);
-                fflush(stdin);
-                fscanf(fptr, "%d", &age);
-                fflush(stdin);
-                fscanf(fptr, "%d", &ind_goal);
-                fflush(stdin);
-
-                for (int j = 0; j < 7; j++)
-                {
-                    fscanf(fptr, "%d", &stepcount[j]);
-                }
-                head = Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
-                printf("%d is added\n",mem_id);
+                scanf("%d", &stepcount[j]);
             }
+            head = Add_Person(mem_id, Name, age, ind_goal, stepcount, head);
+            FILE *fptr1 = fopen("input.txt", "a");
+            fprintf(fptr1, "\n");
+            fprintf(fptr1, "%d %s %d %d", mem_id, Name, age, ind_goal);
+            for (int i = 0; i < 7; i++)
+            {
+                fprintf(fptr1, " %d", stepcount[i]);
+            }
+
+            fclose(fptr1);
         }
         else if (choice == 2)
-        {   
-            int group_id;
-            int group_goal;
-            int NO_of_members;
-            char group_name[NAME_SIZE];
-            int members_Id[4];
-            for (int i = 0; i < 4; i++)
+        {
+            printf("Enter group ID : \n");
+            scanf("%d", &group_id);
+            printf("Enter group Name : \n");
+            scanf("%s", group_name);
+            printf("Enter weekly group goal : \n");
+            scanf("%d", &group_goal);
+            printf("Enter no of members : \n");
+            scanf("%d", &NO_of_members);
+            printf("Enter id of members : \n");
+            for (int j = 0; j < NO_of_members; j++)
             {
-                fscanf(gptr, "%d", &group_id);
-                fflush(stdin);
-                fscanf(gptr, "%s", group_name);
-                fflush(stdin);
-                fscanf(gptr, "%d", &group_goal);
-                fflush(stdin);
-                ghead = createGroup(group_id, group_name, group_goal, ghead);
-                fscanf(gptr, "%d", &NO_of_members);
-                fflush(stdin);
-                // printf("%d ", NO_of_members);
-                for (int i = 0; i < NO_of_members; i++)
-                {
-                    fscanf(gptr, "%d", &members_Id[i]);
-                    individual *curr = head;
-                    while (curr != NULL && curr->mem_id != members_Id[i])
-                    {
-                        curr = curr->next;
-                        printf("mem id:%d  members_Id[i]:%d\n", curr->mem_id, members_Id[i]);
-                        printf(".");
-                    }
-                    if (curr == NULL)
-                    {
-                        printf("ERROR:-The individual with member id-%d not found in the list\n", members_Id[i]);
-                    }
-                    else
-                    {
-                        group *current = ghead;
-                        printf("\n group id: %d \tcurrent group id :%d\n", group_id, current->gr_id);
-                        while (current != NULL && current->gr_id != group_id)
-                        {
-                            current = current->next;
-                            printf("\n group id: %d \tcurrent group id :%d\n", group_id, current->gr_id);
-                        }
-                        if (current == NULL)
-                        {
-                            printf("ERROR:-The group with group id-%d not found in the list\n", group_id);
-                        }
-                        else
-                        {
-                            addIndividualToGroup(current, curr, ghead);
-                        }
-                    }
-                }
+                scanf("%d", &members_Id[j]);
             }
+            ghead = createGroup(group_id,group_name,group_goal,ghead);
+            group *current = ghead;
+            while (current != NULL && current->gr_id != group_id)
+            {
+                current = current->next;
+            }
+            individual *curr = head;
+            for (int i = 0; i < NO_of_members; i++)
+            {
+                while (curr != NULL && curr->mem_id != members_Id[i])
+                {
+                    curr = curr->next;
+                }
+                addIndividualToGroup(current, curr, ghead);
+            }
+            
+            FILE *fptr2 = fopen("group.txt", "a");
+            fprintf(fptr2, "\n");
+            fprintf(fptr2, "%d %s %d %d", group_id,group_name,group_goal,NO_of_members);
+            for (int i = 0; i < NO_of_members; i++)
+            {
+                fprintf(fptr2, " %d", members_Id[i]);
+            }
+
+            fclose(fptr2);
         }
         else if (choice == 3)
         {
             int *arr;
-            arr = (int*)malloc(sizeof(int)*3);
-            int* ptr = get_top_3(head,arr);
+            arr = (int *)malloc(sizeof(int) * 3);
+            int *ptr = get_top_3(head, arr);
         }
         else if (choice == 4)
         {
             int id;
             printf("enter group id no.:");
             scanf("%d", &id);
-            Check_group_achievement(id,ghead);
+            Check_group_achievement(id, ghead);
         }
         else if (choice == 5)
         {
@@ -728,7 +810,7 @@ int main()
             int id;
             printf("enter id no.:");
             scanf("%d", &id);
-            Check_individual_rewards(id,head);
+            Check_individual_rewards(id, head);
         }
         else if (choice == 7)
         {
@@ -742,7 +824,7 @@ int main()
             int id;
             printf("enter group id no.:");
             scanf("%d", &id);
-            ghead = Delete_group(id,ghead);
+            ghead = Delete_group(id, ghead);
         }
         else if (choice == 9)
         {
@@ -750,18 +832,18 @@ int main()
         }
         else if (choice == 10)
         {
-            int id1,id2;
+            int id1, id2;
             printf("enter group id Nos.:");
             scanf("%d", &id1);
-            scanf("%d",&id2);
-            ghead = Merge_groups(id1,id2,&ghead);   
+            scanf("%d", &id2);
+            group *newgrp = Merge_groups(id1, id2, &ghead);
         }
         else if (choice == 11)
         {
             int id;
             printf("enter group id no.:");
             scanf("%d", &id);
-            Display_group_info(ghead,id);
+            Display_group_info(ghead, id);
         }
         else if (choice == 12)
         {

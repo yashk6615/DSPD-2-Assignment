@@ -671,7 +671,7 @@ void get_top_3(ind *root, int *top3_individuals,int *top3)
     }
 }
 
-// Utility function to search a mem_id in a BST
+// Utility function to search a key in a BST
 ind* search(ind* root, int mem_id)
 {
     // Base Cases: root is null or key is present at root
@@ -747,13 +747,13 @@ void Suggest_goal_update(ind *head)
     get_top_3(head, arr,ptr);
     for (int i = 0; i < 3; i++)
     {
-        goal = ptr[i] / 7;
+        goal = ptr[i] / 7 ;
         printf("\nyou need to have minimum daily goal of %d for rank %d \n", goal + 1, i + 1);
     }
     free(arr);
     free(ptr);
 }
- 
+
 void Check_group_achievement(int group_id, group *head)
 {
     group *curr = head;
@@ -828,6 +828,13 @@ group *Delete_group(group *root, int gr_id) {
             while (temp->left != NULL)
                 temp = temp->left;
             root->gr_id = temp->gr_id;
+            strcpy(root->gr_name, temp->gr_name);
+            root->gr_goal = temp->gr_goal;
+            for (int i = 0; i < 5; i++)
+            {
+                root->arr_mem[i]= temp->arr_mem[i];
+                root->memberIDs[i]=temp->memberIDs[i];      
+            } 
             root->right = Delete_group(root->right, temp->gr_id);
         }
     }
@@ -947,7 +954,7 @@ int Delete_ind_from_group(group* groot,int mem_id)
     }
     else
     {
-        for (int i = 0; i < 7 ; i++)
+        for (int i = 0; i < SIZE ; i++)
         {
             if(groot->memberIDs[i]==mem_id && !found)
             {
@@ -957,7 +964,7 @@ int Delete_ind_from_group(group* groot,int mem_id)
             }
         }
         
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < SIZE; i++)
         {
             if (groot->memberIDs[i]!=0)
             {
@@ -1038,7 +1045,14 @@ ind* Delete_Individual(ind* root,group *groot, int mem_id)
  
             // Copy the inorder successor's data to this node
             root->mem_id = temp->mem_id;
- 
+            strcpy(root->Name, temp->Name);
+            root->age = temp->age;
+            root->ind_goal = temp->ind_goal;
+            for (int i = 0; i < 7; i++)
+            {
+                root->stepcount[i]=temp->stepcount[i];
+            }
+            
             // Delete the inorder successor
             root->right = Delete_Individual(root->right,groot, temp->mem_id);
         }
@@ -1088,6 +1102,36 @@ ind* Delete_Individual(ind* root,group *groot, int mem_id)
     return root;
 }
 
+void display_group_range_info(group *root,int gid1,int gid2)
+{
+    group *curr = root;
+    if(curr != NULL)
+    {
+        display_group_range_info(root->left,gid1,gid2);
+        if (root->gr_id >= gid1 && root->gr_id <= gid2)
+        {
+            printf("\n Group ID:%d \n Group Name:%10s  \n group Goal:%d\n Group Members:\n Member ID\tName  Age\tGoal\t\tWeekly Stepcount\n", curr->gr_id, curr->gr_name, curr->gr_goal);
+            for (int i = 0; i < 5; i++)
+            {
+                if (curr->arr_mem[i] != NULL)
+                {
+                    printf("\n %d \t %10s  %d \t %d\t ", curr->arr_mem[i]->mem_id, curr->arr_mem[i]->Name, curr->arr_mem[i]->age, curr->arr_mem[i]->ind_goal);
+                    for (int j = 0; j < 7; j++)
+                    {
+                        printf("%d ", curr->arr_mem[i]->stepcount[j]);
+                    }
+                    printf("\n");
+                }
+            }
+            printf("\n");
+        }
+        display_group_range_info(root->right,gid1,gid2);
+    }
+    if (curr == NULL)
+    {
+        return;
+    }
+}
 
 int main()
 {
@@ -1186,10 +1230,10 @@ int main()
     fclose(fptr);
     fclose(gptr);
     int choice = 0;
-    while (choice != 13)
+    while (choice != 14)
     {
         printf("\n\n\n\n\nCHOOSE ANY OPTION:-\n");
-        printf("1- Add a person\n2- Create a group\n3- Get top 3 winners\n4- Check group achievements\n5- Generate Leaderboard of groups\n6- check individual rewards\n7- delete individual\n8- Delete a group\n9- suggest goal updates for any person\n10- merge two groups\n11- display group info\n12-display all individual info\n13-EXIT\n");
+        printf("1- Add a person\n2- Create a group\n3- Get top 3 winners\n4- Check group achievements\n5- Generate Leaderboard of groups\n6- check individual rewards\n7- delete individual\n8- Delete a group\n9- suggest goal updates for any person\n10- merge two groups\n11- display group info\n12-display all individual info\n13-Display Range group Info\n14-EXIT\n");
         printf("Enter:");
         scanf("%d", &choice);
         if (choice == 1)
@@ -1208,14 +1252,15 @@ int main()
                 scanf("%d", &stepcount[j]);
             }
             head = Add_Person(head,mem_id, Name, age, ind_goal, stepcount);
-            FILE *fptr1 = fopen("input.txt", "a");
-            fprintf(fptr1, "\n");
-            fprintf(fptr1, "%d %s %d %d", mem_id, Name, age, ind_goal);
-            for (int i = 0; i < 7; i++)
-            {
-                fprintf(fptr1, " %d", stepcount[i]);
-            }
-
+            printf("Adding...");
+            FILE *fptr1 = fopen("input.txt", "w");
+            // fprintf(fptr1, "\n");
+            // fprintf(fptr1, "%d %s %d %d", mem_id, Name, age, ind_goal);
+            // for (int i = 0; i < 7; i++)
+            // {
+            //     fprintf(fptr1, " %d", stepcount[i]);
+            // }
+            update_individual_file(head,fptr1);
             fclose(fptr1);
         }
         else if (choice == 2)
@@ -1263,14 +1308,14 @@ int main()
                 addIndividualToGroup(current, curr, ghead);
             }
             
-            FILE *fptr2 = fopen("group.txt", "a");
-            fprintf(fptr2, "\n");
-            fprintf(fptr2, "%d %s %d %d", group_id,group_name,group_goal,NO_of_members);
-            for (int i = 0; i < NO_of_members; i++)
-            {
-                fprintf(fptr2, " %d", members_Id[i]);
-            }
-
+            FILE *fptr2 = fopen("group.txt", "w");
+            // fprintf(fptr2, "\n");
+            // fprintf(fptr2, "%d %s %d %d", group_id,group_name,group_goal,NO_of_members);
+            // for (int i = 0; i < NO_of_members; i++)
+            // {
+            //     fprintf(fptr2, " %d", members_Id[i]);
+            // }
+            update_group_file(ghead,fptr2);
             fclose(fptr2);
         }
         else if (choice == 3)
@@ -1337,6 +1382,9 @@ int main()
             scanf("%d", &id1);
             scanf("%d", &id2);
             ghead = Merge_groups(id1, id2, ghead);
+            FILE *fptr6 = fopen("group.txt","w");
+            update_group_file(ghead,fptr6);
+            fclose(fptr6);
         }
         else if (choice == 11)
         {
@@ -1346,7 +1394,15 @@ int main()
         {
             display_indiv_info(head);
         }
-        else if (choice == 13)
+        else if(choice == 13)
+        {
+            int id1, id2;
+            printf("enter group id Nos.:");
+            scanf("%d", &id1);
+            scanf("%d", &id2);
+            display_group_range_info(ghead,id1,id2);
+        }
+        else if (choice == 14)
         {
             printf("EXITING...");
         }

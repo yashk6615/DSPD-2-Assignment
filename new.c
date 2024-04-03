@@ -1048,8 +1048,11 @@ ind* Delete_Individual(ind* root,group *groot, int mem_id)
             strcpy(root->Name, temp->Name);
             root->age = temp->age;
             root->ind_goal = temp->ind_goal;
-            memcpy(root->stepcount, temp->stepcount, 7 * sizeof(int));
- 
+            for (int i = 0; i < 7; i++)
+            {
+                root->stepcount[i]=temp->stepcount[i];
+            }
+            
             // Delete the inorder successor
             root->right = Delete_Individual(root->right,groot, temp->mem_id);
         }

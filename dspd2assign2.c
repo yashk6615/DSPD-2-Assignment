@@ -58,7 +58,15 @@ void update_group_file(group *root,FILE *fptr2)
     if (root != NULL)
     {
         update_group_file(root->left,fptr2);
-        fprintf(fptr2,"%d\t%10s\t%10d\t",root->gr_id,root->gr_name,root->gr_goal);
+        int n=0;
+        for (int i = 0; i < SIZE; i++)
+        {
+            if (root->memberIDs[i] != 0)
+            {
+                n+=1;
+            }  
+        }
+        fprintf(fptr2,"%d %10s %10d\t%d ",root->gr_id,root->gr_name,root->gr_goal,n);
         for (int i = 0; i < 5; i++)
         {
             fprintf(fptr2,"%5d ",root->memberIDs[i]);
@@ -1108,7 +1116,7 @@ void display_group_range_info(group *root,int gid1,int gid2)
     if(curr != NULL)
     {
         display_group_range_info(root->left,gid1,gid2);
-        if (root->gr_id >= gid1 && root->gr_id <= gid2)
+        if (curr->gr_id >= gid1 && curr->gr_id <= gid2)
         {
             printf("\n Group ID:%d \n Group Name:%10s  \n group Goal:%d\n Group Members:\n Member ID\tName  Age\tGoal\t\tWeekly Stepcount\n", curr->gr_id, curr->gr_name, curr->gr_goal);
             for (int i = 0; i < 5; i++)
@@ -1233,7 +1241,7 @@ int main()
     while (choice != 14)
     {
         printf("\n\n\n\n\nCHOOSE ANY OPTION:-\n");
-        printf("1- Add a person\n2- Create a group\n3- Get top 3 winners\n4- Check group achievements\n5- Generate Leaderboard of groups\n6- check individual rewards\n7- delete individual\n8- Delete a group\n9- suggest goal updates for any person\n10- merge two groups\n11- display group info\n12-display all individual info\n13-Display Range group Info\n14-EXIT\n");
+        printf("1- Add a person\n2- Create a group\n3- Get top 3 winners\n4- Check group achievements\n5- Generate Leaderboard of groups\n6- Check individual rewards\n7- Delete individual\n8- Delete a group\n9- Suggest goal updates for any person\n10- Merge two groups\n11- Display group info\n12-Display all individual info\n13-Display Range group Info\n14-EXIT\n");
         printf("Enter:");
         scanf("%d", &choice);
         if (choice == 1)
@@ -1294,17 +1302,7 @@ int main()
             ind *curr = head;
             for (int i = 0; i < NO_of_members; i++)
             {
-                while (curr != NULL && curr->mem_id != members_Id[i])
-                {
-                    if (curr->mem_id < members_Id[i])
-                    {
-                        curr = curr->right;
-                    }
-                    else
-                    {
-                        curr = curr->left;
-                    }
-                }
+                curr=search(head,members_Id[i]);
                 addIndividualToGroup(current, curr, ghead);
             }
             
